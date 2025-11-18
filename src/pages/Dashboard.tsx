@@ -55,6 +55,8 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
     fetchPlans();
     const interval = setInterval(fetchPlans, 60 * 1000); // Refresh every 1 min
     return () => clearInterval(interval);

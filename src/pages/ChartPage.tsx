@@ -43,6 +43,8 @@ const ChartPage: React.FC = () => {
   const decodedCommunityName = communityName ? decodeURIComponent(communityName) : '';
 
   useEffect(() => {
+    // Scroll to top when component mounts or route changes
+    window.scrollTo(0, 0);
     const fetchPlans = async () => {
       setLoading(true);
       setError("");

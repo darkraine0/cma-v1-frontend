@@ -65,6 +65,8 @@ const CommunityDetail: React.FC = () => {
   };
 
   useEffect(() => {
+    // Scroll to top when component mounts or route changes
+    window.scrollTo(0, 0);
     if (decodedCommunityName) {
       fetchPlans();
       const interval = setInterval(fetchPlans, 60 * 1000); // Refresh every 1 min

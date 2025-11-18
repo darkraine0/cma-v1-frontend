@@ -39,6 +39,7 @@ export const getCompanyColor = (company: string) => {
     // HistoryMaker Homes
     'historymaker homes': '#00a651',
     'history maker homes': '#00a651',
+    'history maker': '#00a651',
     
     // K. Hovnanian Homes
     'k. hovnanian homes': '#ff6b35',
@@ -141,6 +142,11 @@ export const getCompanyColor = (company: string) => {
     'davidson homes': '#c026d3',
     'davidsonhomes': '#c026d3',
     'david son homes': '#c026d3',
+    
+    // Centex Homes variations
+    'centex': '#0369a1', // Sky Blue
+    'centex homes': '#0369a1',
+    'centexhomes': '#0369a1',
   };
   
   return companyMap[normalized] || '#888'; // Gray default for unknown companies

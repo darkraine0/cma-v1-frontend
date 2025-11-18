@@ -85,6 +85,8 @@ const Communities: React.FC = () => {
   };
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
     fetchCommunities();
     const interval = setInterval(fetchCommunities, 60 * 1000); // Refresh every 1 min
     return () => clearInterval(interval);
