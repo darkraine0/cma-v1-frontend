@@ -21,6 +21,14 @@ const Navbar = () => (
                 Communities
               </Button>
             </Link>
+            <Link to="/companies">
+              <Button
+                variant="outline"
+                className="bg-card text-card-foreground border-border hover:bg-muted hover:text-muted-foreground font-semibold"
+              >
+                Companies
+              </Button>
+            </Link>
             <Link to="/dashboard">
               <Button 
                 variant="outline"
