@@ -48,15 +48,49 @@ const CommunityDetail: React.FC = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(API_URL + "/plans");
-      if (!res.ok) throw new Error("Failed to fetch plans");
-      const data: Plan[] = await res.json();
-      
-      // Filter plans for this specific community (case-insensitive)
-      const communityPlans = data.filter(plan => 
-        plan.community.toLowerCase() === decodedCommunityName.toLowerCase()
-      );
-      setPlans(communityPlans);
+      // If UnionMain Homes is selected, use v2 API for real-time scraping
+      if (selectedCompany === 'UnionMain Homes') {
+        const typeParam = selectedType === 'Now' ? 'now' : 'plan';
+        const url = new URL(`${API_URL}/v2/scrape`);
+        url.searchParams.set('community', decodedCommunityName);
+        url.searchParams.set('company', 'UnionMain Homes');
+        url.searchParams.set('type', typeParam);
+        
+        const res = await fetch(url.toString());
+        if (!res.ok) throw new Error("Failed to fetch from v2 API");
+        const result = await res.json();
+        
+        if (result.status === 'success') {
+          // Transform v2 response to match Plan interface
+          const transformedPlans: Plan[] = result.plans.map((plan: any) => ({
+            plan_name: plan.plan_name || plan.address || 'Unknown',
+            price: plan.price,
+            sqft: plan.sqft,
+            stories: plan.stories || '2',
+            price_per_sqft: plan.price_per_sqft || 0,
+            last_updated: new Date().toISOString(),
+            price_changed_recently: false,
+            company: plan.company,
+            community: plan.community,
+            type: plan.type,
+            address: plan.address
+          }));
+          setPlans(transformedPlans);
+        } else {
+          throw new Error(result.error || "Scraping failed");
+        }
+      } else {
+        // Default behavior: fetch from v1 API
+        const res = await fetch(API_URL + "/plans");
+        if (!res.ok) throw new Error("Failed to fetch plans");
+        const data: Plan[] = await res.json();
+        
+        // Filter plans for this specific community (case-insensitive)
+        const communityPlans = data.filter(plan => 
+          plan.community.toLowerCase() === decodedCommunityName.toLowerCase()
+        );
+        setPlans(communityPlans);
+      }
     } catch (err: any) {
       setError(err.message || "Unknown error");
     } finally {
@@ -67,10 +101,13 @@ const CommunityDetail: React.FC = () => {
   useEffect(() => {
     if (decodedCommunityName) {
       fetchPlans();
-      const interval = setInterval(fetchPlans, 60 * 1000); // Refresh every 1 min
-      return () => clearInterval(interval);
+      // Only auto-refresh if not using v2 API (v2 is on-demand scraping)
+      if (selectedCompany !== 'UnionMain Homes') {
+        const interval = setInterval(fetchPlans, 60 * 1000); // Refresh every 1 min
+        return () => clearInterval(interval);
+      }
     }
-  }, [decodedCommunityName]);
+  }, [decodedCommunityName, selectedCompany, selectedType]);
 
   useEffect(() => {
     setPage(1); // Reset to first page on filter/sort change

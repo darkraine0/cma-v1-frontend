@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge";
 import API_URL from '../config';
 import { getCompanyColor } from '../utils/colors';
+import { getCommunityImage } from '../utils/communityImages';
 
 interface Plan {
   plan_name: string;
@@ -111,19 +112,12 @@ const Communities: React.FC = () => {
               onClick={() => handleCommunityClick(community.name)}
               className="cursor-pointer overflow-auto"
             >
-              <div className="relative overflow-hidden">
-                <img
-                  src={
-                    // community.name === 'Cambridge' ? 'https://lh3.googleusercontent.com/p/AF1QipNy23uJq2nst_j1A4fK5_S63FLs03bYz8cReUv8=s680-w680-h510-rw' :
-                    // community.name === 'Milrany' ? 'https://unionmainhomes.com/wp-content/uploads/2024/08/42_3504_Thomas_Earl_Way_Melissa_TX_75454__Exports12-1.jpg' :
-                    // community.name === 'Brookville' ? 'https://nhs-dynamic-secure.akamaized.net/images/homes/union56526/94853826-250522.jpg?encoder=freeimage&progressive=true&maxwidth=1932&format=jpg' :
-                    // community.name === 'Edgewater' ? 'https://unionmainhomes.com/wp-content/uploads/2022/05/02-Sign-2.jpg' :
-                    // community.name === 'Creekside' ? 'https://ssl.cdn-redfin.com/photo/community/30443754/mbphoto/genMid.0_4.jpg' :
-                    'https://elevontx.com/wp-content/uploads/2024/01/UnionMain50Model.jpeg.webp'
-                  }
-                  alt={community.name}
-                  className="w-full h-full object-cover"
-                />
+                             <div className="relative h-48 rounded-t-xl overflow-hidden">
+                 <img
+                  src={getCommunityImage(community.name)}
+                   alt={community.name}
+                   className="w-full h-full object-cover"
+                 />
                 {community.recentChanges > 0 && (
                   <Badge variant="destructive" className="absolute">
                     {community.recentChanges} new
