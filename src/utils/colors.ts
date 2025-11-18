@@ -1,75 +1,147 @@
 // Simplified color configuration for company consistency across all pages
+// Normalizes company name for case-insensitive matching and handles variations
+const normalizeCompanyName = (company: string): string => {
+  return company.trim().toLowerCase().replace(/\s+/g, ' ');
+};
+
+// Sort companies with UnionMain Homes always first
+export const sortCompanies = (companies: string[]): string[] => {
+  const unionMain = 'UnionMain Homes';
+  const hasUnionMain = companies.includes(unionMain);
+  const otherCompanies = companies.filter(c => c !== unionMain).sort();
+  return hasUnionMain ? [unionMain, ...otherCompanies] : otherCompanies;
+};
+
 export const getCompanyColor = (company: string) => {
-  switch (company) {
-    case 'DR Horton':
-      return '#2563eb'; // Blue
-    case 'UnionMain Homes':
-      return '#e11d48'; // Red
-    case 'M/I Homes':
-      return '#9c27b0'; // Purple
-    case 'Pacesetter Homes':
-      return '#ff9800'; // Amber
-    case 'Trophy Signature Homes':
-      return '#2e7d32'; // Green
-    case 'HistoryMaker Homes':
-      return '#00a651'; // Green
-    case 'K. Hovnanian Homes':
-      return '#ff6b35'; // Orange
-    case 'Highland Homes':
-      return '#ec4899'; // Pink
-    case 'Beazer Homes':
-      return '#f43f5e'; // Rose
-    case 'Redfin':
-      return '#7c3aed'; // Violet
-    case 'ChesmarHomes':
-      return '#8b5cf6'; // Violet
-    case 'PerryHomes':
-    case 'Perry Homes':
-      return '#6366f1'; // Indigo
-    case 'CoventryHomes':
-    case 'Coventry Homes':
-      return '#0ea5e9'; // Sky
-    case 'William Ryan Homes':
-      return '#6366f1'; // Indigo
-    case 'Rockwell Homes':
-      return '#84cc16'; // Lime
-    case 'American Legend Homes':
-      return '#14b8a6'; // Teal
-    case 'AshtonWoods Homes':
-      return '#64748b'; // Slate
-    case 'Bloomfield Homes':
-      return '#d946ef'; // Fuchsia
-    case 'Brightland Homes':
-      return '#f43f5e'; // Rose
-    case 'David Weekley Homes':
-      return '#eab308'; // Yellow
-    case 'Shaddock Homes':
-      return '#78716c'; // Stone
-    case 'Chafin Communities':
-      return '#059669'; // Emerald
-    case 'David Homes':
-      return '#dc2626'; // Red
-    case 'Eastwood Homes':
-      return '#7c2d12'; // Orange
-    case 'Fischer Homes':
-      return '#1e40af'; // Blue
-    case 'Kittle Homes':
-      return '#059669'; // Emerald
-    case 'Millcroft Townhomes':
-      return '#7c3aed'; // Violet
-    case 'Evanshire Townhomes':
-      return '#dc2626'; // Red
-    case 'Wards Crossing Townhomes':
-      return '#ea580c'; // Orange
-    case 'Waterside Condos':
-      return '#0891b2'; // Cyan
-    case 'Waterside Townhomes':
-      return '#16a34a'; // Green
-    case 'BlueHaven Homes':
-      return '#8b5a2b'; // Brown
-    case 'Christie Homes':
-      return '#9333ea'; // Purple
-    default:
-      return '#888'; // Gray
-  }
+  const normalized = normalizeCompanyName(company);
+  
+  // Normalize and match company names (case-insensitive)
+  const companyMap: Record<string, string> = {
+    // DR Horton variations
+    'dr horton': '#2563eb',
+    'd.r. horton': '#2563eb',
+    'd r horton': '#2563eb',
+    
+    // UnionMain Homes
+    'unionmain homes': '#e11d48',
+    'union main homes': '#e11d48',
+    
+    // M/I Homes variations
+    'm/i homes': '#9c27b0',
+    'mi homes': '#9c27b0',
+    
+    // Pacesetter Homes
+    'pacesetter homes': '#ff9800',
+    
+    // Trophy Signature Homes
+    'trophy signature homes': '#2e7d32',
+    
+    // HistoryMaker Homes
+    'historymaker homes': '#00a651',
+    'history maker homes': '#00a651',
+    
+    // K. Hovnanian Homes
+    'k. hovnanian homes': '#ff6b35',
+    'k hovnanian homes': '#ff6b35',
+    'hovnanian homes': '#ff6b35',
+    
+    // Highland Homes
+    'highland homes': '#ec4899',
+    
+    // Beazer Homes
+    'beazer homes': '#f43f5e',
+    
+    // Redfin
+    'redfin': '#7c3aed',
+    
+    // Chesmar Homes variations
+    'chesmarhomes': '#8b5cf6',
+    'chesmar homes': '#8b5cf6',
+    
+    // Perry Homes variations
+    'perryhomes': '#6366f1',
+    'perry homes': '#6366f1',
+    
+    // Coventry Homes variations
+    'coventryhomes': '#0ea5e9',
+    'coventry homes': '#0ea5e9',
+    
+    // William Ryan Homes
+    'william ryan homes': '#4f46e5',
+    'williamryan homes': '#4f46e5',
+    
+    // Rockwell Homes
+    'rockwell homes': '#84cc16',
+    
+    // American Legend Homes
+    'american legend homes': '#14b8a6',
+    
+    // AshtonWoods Homes variations
+    'ashtonwoods homes': '#64748b',
+    'ashton woods homes': '#64748b',
+    
+    // Bloomfield Homes
+    'bloomfield homes': '#d946ef',
+    
+    // Brightland Homes
+    'brightland homes': '#f97316',
+    
+    // David Weekley Homes
+    'david weekley homes': '#eab308',
+    'davidweekley homes': '#eab308',
+    
+    // Shaddock Homes
+    'shaddock homes': '#78716c',
+    
+    // Chafin Communities variations
+    'chafin communities': '#059669',
+    'chafincommunities': '#059669',
+    
+    // David Homes
+    'david homes': '#dc2626',
+    
+    // Eastwood Homes
+    'eastwood homes': '#7c2d12',
+    
+    // Fischer Homes
+    'fischer homes': '#1e40af',
+    
+    // Kittle Homes
+    'kittle homes': '#10b981',
+    
+    // Millcroft Townhomes
+    'millcroft townhomes': '#a855f7',
+    
+    // Evanshire Townhomes
+    'evanshire townhomes': '#ef4444',
+    
+    // Wards Crossing Townhomes
+    'wards crossing townhomes': '#ea580c',
+    
+    // Waterside Condos
+    'waterside condos': '#0891b2',
+    
+    // Waterside Townhomes
+    'waterside townhomes': '#16a34a',
+    
+    // BlueHaven Homes variations
+    'bluehaven homes': '#8b5a2b',
+    'blue haven homes': '#8b5a2b',
+    
+    // Christie Homes
+    'christie homes': '#9333ea',
+    
+    // Starlight Homes
+    'starlight homes': '#22d3ee',
+    
+    // Piedmont Homes
+    'piedmont homes': '#fbbf24',
+    
+    // DavidSon Homes variations (one 's' - DavidSon)
+    'davidson homes': '#c026d3',
+    'davidsonhomes': '#c026d3',
+    'david son homes': '#c026d3',
+  };
+  
+  return companyMap[normalized] || '#888'; // Gray default for unknown companies
 };

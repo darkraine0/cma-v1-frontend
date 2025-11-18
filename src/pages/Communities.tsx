@@ -5,7 +5,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import API_URL from '../config';
-import { getCompanyColor } from '../utils/colors';
+import { getCompanyColor, sortCompanies } from '../utils/colors';
 import { getCommunityImage } from '../utils/communityImages';
 
 interface Plan {
@@ -56,7 +56,7 @@ const Communities: React.FC = () => {
 
       // Convert to Community objects
       const communityData: Community[] = Array.from(communityMap.entries()).map(([name, plans]) => {
-        const companies = Array.from(new Set(plans.map(p => p.company)));
+        const companies = sortCompanies(Array.from(new Set(plans.map(p => p.company))));
         const prices = plans.map(p => p.price).filter(p => p > 0);
         const recentChanges = plans.filter(p => p.price_changed_recently).length;
         const totalPlans = plans.filter(p => p.type === 'plan').length;

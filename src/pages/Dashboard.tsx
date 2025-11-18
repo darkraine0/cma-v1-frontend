@@ -9,7 +9,7 @@ import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import API_URL from '../config';
-import { getCompanyColor } from '../utils/colors';
+import { getCompanyColor, sortCompanies } from '../utils/colors';
 
 interface Plan {
   plan_name: string;
@@ -64,7 +64,7 @@ const Dashboard: React.FC = () => {
     setPage(1); // Reset to first page on filter/sort change
   }, [sortKey, sortOrder, selectedCompany, selectedType]);
 
-  const companies = Array.from(new Set(plans.map((p) => p.company)));
+  const companies = sortCompanies(Array.from(new Set(plans.map((p) => p.company))));
 
   const filteredPlans = plans.filter((plan) =>
     (selectedCompany === 'All' || plan.company === selectedCompany) &&

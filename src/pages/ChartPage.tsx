@@ -8,7 +8,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import API_URL from '../config';
-import { getCompanyColor } from '../utils/colors';
+import { getCompanyColor, sortCompanies } from '../utils/colors';
 
 
 Chart.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
@@ -76,7 +76,7 @@ const ChartPage: React.FC = () => {
   );
 
   // Get all companies present in filtered data
-  const companies = Array.from(new Set(filteredPlans.map((p) => p.company)));
+  const companies = sortCompanies(Array.from(new Set(filteredPlans.map((p) => p.company))));
 
   // Prepare datasets for each company
   const datasets = companies.map((company) => {
