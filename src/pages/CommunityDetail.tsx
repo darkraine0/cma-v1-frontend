@@ -189,22 +189,26 @@ const CommunityDetail: React.FC = () => {
                 <p className="text-sm text-muted-foreground">Home plans and pricing information</p>
               </div>
             
-            {/* Center - Type tabs */}
-            <div className="flex justify-center flex-1">
-              <TypeTabs selected={selectedType} onSelect={setSelectedType} />
-            </div>
+            {/* Center - Type tabs (hidden when company is specified in URL) */}
+            {!companyParam && (
+              <div className="flex justify-center flex-1">
+                <TypeTabs selected={selectedType} onSelect={setSelectedType} />
+              </div>
+            )}
             
             {/* Right side - Action buttons */}
             <div className="flex justify-end flex-1">
               <div className="flex gap-2">
-                <Button 
-                  onClick={() => navigate(`/community/${encodeURIComponent(decodedCommunityName)}/chart?type=${selectedType.toLowerCase()}`)}
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                  View Chart
-                </Button>
+                {!companyParam && (
+                  <Button 
+                    onClick={() => navigate(`/community/${encodeURIComponent(decodedCommunityName)}/chart?type=${selectedType.toLowerCase()}`)}
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    View Chart
+                  </Button>
+                )}
                 <Button 
                   onClick={exportCSV}
                 >
@@ -220,10 +224,12 @@ const CommunityDetail: React.FC = () => {
         
         <CardContent>
 
-          {/* Second Header - Company tabs */}
-          <div className="mb-6">
-            <CompanyTabs companies={companies} selected={selectedCompany} onSelect={setSelectedCompany} />
-          </div>
+          {/* Second Header - Company tabs (hidden when company is specified in URL) */}
+          {!companyParam && (
+            <div className="mb-6">
+              <CompanyTabs companies={companies} selected={selectedCompany} onSelect={setSelectedCompany} />
+            </div>
+          )}
           
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">          
             <div className="flex gap-2 items-center flex-wrap">
