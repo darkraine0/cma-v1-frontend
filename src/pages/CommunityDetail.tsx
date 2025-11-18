@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import CompanyTabs from "../components/CompanyTabs";
 import TypeTabs from "../components/TypeTabs";
 import Loader from "../components/Loader";
@@ -10,7 +10,7 @@ import { Badge } from "../components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import API_URL from '../config';
-import { getCompanyColor, sortCompanies } from '../utils/colors';
+import { getCompanyColor, sortCompanies, isSameCompany, getCanonicalCompanyName } from '../utils/colors';
 
 interface Plan {
   plan_name: string;
@@ -33,13 +33,17 @@ const PAGE_SIZE = 50;
 const CommunityDetail: React.FC = () => {
   const { communityName } = useParams<{ communityName: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("price");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [page, setPage] = useState(1);
-  const [selectedCompany, setSelectedCompany] = useState<string>('All');
+  
+  // Get company from URL params if available (for filtering)
+  const companyParam = searchParams.get('company');
+  const [selectedCompany, setSelectedCompany] = useState<string>(companyParam || 'All');
   const [selectedType, setSelectedType] = useState<string>('Now');
 
   const decodedCommunityName = communityName ? decodeURIComponent(communityName) : '';
@@ -56,6 +60,7 @@ const CommunityDetail: React.FC = () => {
       const communityPlans = data.filter(plan => 
         plan.community.toLowerCase() === decodedCommunityName.toLowerCase()
       );
+      
       setPlans(communityPlans);
     } catch (err: any) {
       setError(err.message || "Unknown error");
@@ -65,6 +70,13 @@ const CommunityDetail: React.FC = () => {
   };
 
   useEffect(() => {
+    // Set selected company from URL param on mount
+    if (companyParam) {
+      setSelectedCompany(companyParam);
+    }
+  }, [companyParam]);
+
+  useEffect(() => {
     // Scroll to top when component mounts or route changes
     window.scrollTo(0, 0);
     if (decodedCommunityName) {
@@ -72,18 +84,28 @@ const CommunityDetail: React.FC = () => {
       const interval = setInterval(fetchPlans, 60 * 1000); // Refresh every 1 min
       return () => clearInterval(interval);
     }
-  }, [decodedCommunityName, selectedCompany, selectedType]);
+  }, [decodedCommunityName, selectedCompany, selectedType, companyParam]);
 
   useEffect(() => {
     setPage(1); // Reset to first page on filter/sort change
   }, [sortKey, sortOrder, selectedCompany, selectedType]);
 
-  const companies = sortCompanies(Array.from(new Set(plans.map((p) => p.company))));
+  // Get unique companies using canonical names to avoid duplicates
+  const uniqueCompanies = Array.from(new Set(plans.map((p) => getCanonicalCompanyName(p.company))));
+  const companies = sortCompanies(uniqueCompanies);
 
-  const filteredPlans = plans.filter((plan) =>
-    (selectedCompany === 'All' || plan.company === selectedCompany) &&
-    (selectedType === 'Plan' || selectedType === 'Now' ? plan.type === selectedType.toLowerCase() : true)
-  );
+  const filteredPlans = plans.filter((plan) => {
+    // If company is specified in URL, always filter by that company (handles variations)
+    const companyMatch = companyParam 
+      ? isSameCompany(plan.company, companyParam)
+      : (selectedCompany === 'All' || isSameCompany(plan.company, selectedCompany));
+    
+    const typeMatch = selectedType === 'Plan' || selectedType === 'Now' 
+      ? plan.type === selectedType.toLowerCase() 
+      : true;
+    
+    return companyMatch && typeMatch;
+  });
 
   const sortedPlans = [...filteredPlans].sort((a, b) => {
     let aValue: any = a[sortKey];

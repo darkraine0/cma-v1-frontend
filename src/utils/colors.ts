@@ -4,6 +4,71 @@ const normalizeCompanyName = (company: string): string => {
   return company.trim().toLowerCase().replace(/\s+/g, ' ');
 };
 
+// Normalize company name for grouping (removes spaces and special characters for matching)
+const normalizeForGrouping = (company: string): string => {
+  return company.trim().toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
+};
+
+// Map of normalized names to canonical (preferred display) names
+const canonicalCompanyNames: Record<string, string> = {
+  'drhorton': 'DR Horton',
+  'd.r.horton': 'DR Horton',
+  'unionmainhomes': 'UnionMain Homes',
+  'unionmain': 'UnionMain Homes',
+  'mihomes': 'M/I Homes',
+  'm/i homes': 'M/I Homes',
+  'pacesetterhomes': 'Pacesetter Homes',
+  'trophysignaturehomes': 'Trophy Signature Homes',
+  'historymakerhomes': 'HistoryMaker Homes',
+  'historymaker': 'HistoryMaker Homes',
+  'history maker': 'HistoryMaker Homes',
+  'khovnanianhomes': 'K. Hovnanian Homes',
+  'k.hovnanianhomes': 'K. Hovnanian Homes',
+  'hovnanianhomes': 'K. Hovnanian Homes',
+  'highlandhomes': 'Highland Homes',
+  'beazerhomes': 'Beazer Homes',
+  'redfin': 'Redfin',
+  'chesmarhomes': 'Chesmar Homes',
+  'perryhomes': 'Perry Homes',
+  'coventryhomes': 'Coventry Homes',
+  'williamryanhomes': 'William Ryan Homes',
+  'rockwellhomes': 'Rockwell Homes',
+  'americanlegendhomes': 'American Legend Homes',
+  'ashtonwoodshomes': 'AshtonWoods Homes',
+  'bloomfieldhomes': 'Bloomfield Homes',
+  'brightlandhomes': 'Brightland Homes',
+  'davidweekleyhomes': 'David Weekley Homes',
+  'shaddockhomes': 'Shaddock Homes',
+  'chafincommunities': 'Chafin Communities',
+  'davidhomes': 'David Homes',
+  'eastwoodhomes': 'Eastwood Homes',
+  'fischerhomes': 'Fischer Homes',
+  'kittlehomes': 'Kittle Homes',
+  'millcrofttownhomes': 'Millcroft Townhomes',
+  'evanshiretownhomes': 'Evanshire Townhomes',
+  'wardscrossingtownhomes': 'Wards Crossing Townhomes',
+  'watersidecondos': 'Waterside Condos',
+  'watersidetownhomes': 'Waterside Townhomes',
+  'bluehavenhomes': 'BlueHaven Homes',
+  'christiehomes': 'Christie Homes',
+  'starlighthomes': 'Starlight Homes',
+  'piedmonthomes': 'Piedmont Homes',
+  'davidsonhomes': 'DavidSon Homes',
+  'centex': 'Centex',
+  'centexhomes': 'Centex',
+};
+
+// Get canonical company name for display (preferred format)
+export const getCanonicalCompanyName = (company: string): string => {
+  const normalized = normalizeForGrouping(company);
+  return canonicalCompanyNames[normalized] || company; // Return original if no canonical found
+};
+
+// Check if two company names refer to the same company
+export const isSameCompany = (company1: string, company2: string): boolean => {
+  return normalizeForGrouping(company1) === normalizeForGrouping(company2);
+};
+
 // Sort companies with UnionMain Homes always first
 export const sortCompanies = (companies: string[]): string[] => {
   const unionMain = 'UnionMain Homes';

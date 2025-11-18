@@ -8,7 +8,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
 import API_URL from '../config';
-import { getCompanyColor, sortCompanies } from '../utils/colors';
+import { getCompanyColor, sortCompanies, getCanonicalCompanyName, isSameCompany } from '../utils/colors';
 
 
 Chart.register(LineElement, PointElement, LinearScale, Title, CategoryScale, Tooltip, Legend);
@@ -77,12 +77,12 @@ const ChartPage: React.FC = () => {
     selectedType === 'Plan' || selectedType === 'Now' ? plan.type === selectedType.toLowerCase() : true
   );
 
-  // Get all companies present in filtered data
-  const companies = sortCompanies(Array.from(new Set(filteredPlans.map((p) => p.company))));
+  // Get all companies present in filtered data (using canonical names to avoid duplicates)
+  const companies = sortCompanies(Array.from(new Set(filteredPlans.map((p) => getCanonicalCompanyName(p.company)))));
 
   // Prepare datasets for each company
   const datasets = companies.map((company) => {
-    const filtered = filteredPlans.filter((p) => p.company === company && p.sqft && p.price);
+    const filtered = filteredPlans.filter((p) => isSameCompany(p.company, company) && p.sqft && p.price);
     // Sort by sqft for a smooth line
     const sorted = filtered.sort((a, b) => a.sqft - b.sqft);
     return {
