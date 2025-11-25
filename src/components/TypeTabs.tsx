@@ -4,10 +4,11 @@ import { Tabs, TabsList, TabsTrigger } from "./ui/tabs";
 interface TypeTabsProps {
   selected: string;
   onSelect: (type: string) => void;
+  className?: string;
 }
 
-const TypeTabs: React.FC<TypeTabsProps> = ({ selected, onSelect }) => (
-  <Tabs value={selected} onValueChange={onSelect}>
+const TypeTabs: React.FC<TypeTabsProps> = ({ selected, onSelect, className }) => (
+  <Tabs value={selected} onValueChange={onSelect} className={className}>
     <TabsList>
       {["Now", "Plan"].map((type) => (
         <TabsTrigger

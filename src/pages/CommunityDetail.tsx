@@ -45,6 +45,7 @@ const CommunityDetail: React.FC = () => {
   const companyParam = searchParams.get('company');
   const [selectedCompany, setSelectedCompany] = useState<string>(companyParam || 'All');
   const [selectedType, setSelectedType] = useState<string>('Now');
+  const [selectedPricingLayer, setSelectedPricingLayer] = useState<string>('All');
 
   const decodedCommunityName = communityName ? decodeURIComponent(communityName) : '';
 
@@ -88,11 +89,39 @@ const CommunityDetail: React.FC = () => {
 
   useEffect(() => {
     setPage(1); // Reset to first page on filter/sort change
-  }, [sortKey, sortOrder, selectedCompany, selectedType]);
+  }, [sortKey, sortOrder, selectedCompany, selectedType, selectedPricingLayer]);
 
   // Get unique companies using canonical names to avoid duplicates
   const uniqueCompanies = Array.from(new Set(plans.map((p) => getCanonicalCompanyName(p.company))));
   const companies = sortCompanies(uniqueCompanies);
+
+  // Helper function to check if price falls in a pricing layer
+  const isInPricingLayer = (price: number, layer: string): boolean => {
+
+    console.log("price", price, "layer", layer);
+    if (layer === 'All') return true;
+    
+    // Only filter by price if price is valid (> 0)
+    if (!price || price <= 0) return false;
+    
+    // Handle 100s+ (anything >= $1,000,000)
+    if (layer === '100s') {
+      return price >= 1000000;
+    }
+    
+    // Extract the decade (20s, 30s, 40s, etc.)
+    const decadeMatch = layer.match(/^(\d+)s$/);
+
+    console.log("decadeMatch", decadeMatch);
+    if (!decadeMatch) return true;
+    
+    const decade = parseInt(decadeMatch[1]);
+    const minPrice = decade * 10000;
+    const maxPrice = minPrice + 100000 -1;
+
+    console.log("minPrice", minPrice, "maxPrice", maxPrice, "price", price);
+    return price >= minPrice && price <= maxPrice;
+  };
 
   const filteredPlans = plans.filter((plan) => {
     // If company is specified in URL, always filter by that company (handles variations)
@@ -104,7 +133,9 @@ const CommunityDetail: React.FC = () => {
       ? plan.type === selectedType.toLowerCase() 
       : true;
     
-    return companyMatch && typeMatch;
+    const pricingLayerMatch = isInPricingLayer(plan.price, selectedPricingLayer);
+    
+    return companyMatch && typeMatch && pricingLayerMatch;
   });
 
   const sortedPlans = [...filteredPlans].sort((a, b) => {
@@ -231,8 +262,27 @@ const CommunityDetail: React.FC = () => {
             </div>
           )}
           
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">          
-            <div className="flex gap-2 items-center flex-wrap">
+          <div className="flex flex-wrap items-center gap-4 mb-6">          
+            <div className="flex gap-2 items-center">
+              <span className="text-sm font-medium text-muted-foreground">Pricing Layer:</span>
+              <Select value={selectedPricingLayer} onValueChange={setSelectedPricingLayer}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Select pricing layer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="20s">20s ($200k-$299k)</SelectItem>
+                  <SelectItem value="30s">30s ($300k-$399k)</SelectItem>
+                  <SelectItem value="40s">40s ($400k-$499k)</SelectItem>
+                  <SelectItem value="50s">50s ($500k-$599k)</SelectItem>
+                  <SelectItem value="60s">60s ($600k-$699k)</SelectItem>
+                  <SelectItem value="70s">70s ($700k-$799k)</SelectItem>
+                  <SelectItem value="80s">80s ($800k-$899k)</SelectItem>
+                  
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 items-center">
               <span className="text-sm font-medium text-muted-foreground">Sort by:</span>
               <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
                 <SelectTrigger className="w-[180px]">

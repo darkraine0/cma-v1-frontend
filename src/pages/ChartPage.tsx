@@ -7,6 +7,7 @@ import Loader from "../components/Loader";
 import ErrorMessage from "../components/ErrorMessage";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Button } from "../components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import API_URL from '../config';
 import { getCompanyColor, sortCompanies, getCanonicalCompanyName, isSameCompany } from '../utils/colors';
 
@@ -39,6 +40,7 @@ const ChartPage: React.FC = () => {
   // Get the type from URL parameter, default to 'now' if not specified
   const urlType = searchParams.get('type');
   const [selectedType, setSelectedType] = useState<string>(urlType === 'plan' ? 'Plan' : 'Now');
+  const [selectedPricingLayer, setSelectedPricingLayer] = useState<string>('All');
 
   const decodedCommunityName = communityName ? decodeURIComponent(communityName) : '';
 
@@ -72,10 +74,39 @@ const ChartPage: React.FC = () => {
     return <ErrorMessage message="Community not found" />;
   }
 
-  // Filter plans by selected type
-  const filteredPlans = plans.filter((plan) => 
-    selectedType === 'Plan' || selectedType === 'Now' ? plan.type === selectedType.toLowerCase() : true
-  );
+  // Helper function to check if price falls in a pricing layer
+  const isInPricingLayer = (price: number, layer: string): boolean => {
+    if (layer === 'All') return true;
+    
+    // Only filter by price if price is valid (> 0)
+    if (!price || price <= 0) return false;
+    
+    // Handle 100s+ (anything >= $1,000,000)
+    if (layer === '100s') {
+      return price >= 1000000;
+    }
+    
+    // Extract the decade (20s, 30s, 40s, etc.)
+    const decadeMatch = layer.match(/^(\d+)s$/);
+    if (!decadeMatch) return true;
+    
+    const decade = parseInt(decadeMatch[1]);
+    const minPrice = decade * 10000;
+    const maxPrice = minPrice + 100000 -1;
+    
+    return price >= minPrice && price <= maxPrice;
+  };
+
+  // Filter plans by selected type and pricing layer
+  const filteredPlans = plans.filter((plan) => {
+    const typeMatch = selectedType === 'Plan' || selectedType === 'Now' 
+      ? plan.type === selectedType.toLowerCase() 
+      : true;
+    
+    const pricingLayerMatch = isInPricingLayer(plan.price, selectedPricingLayer);
+    
+    return typeMatch && pricingLayerMatch;
+  });
 
   // Get all companies present in filtered data (using canonical names to avoid duplicates)
   const companies = sortCompanies(Array.from(new Set(filteredPlans.map((p) => getCanonicalCompanyName(p.company)))));
@@ -161,8 +192,27 @@ const ChartPage: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          <div className="mb-6">
-            <TypeTabs selected={selectedType} onSelect={setSelectedType} />
+          <div className="mb-6 flex items-center gap-4 flex-wrap">
+            <TypeTabs selected={selectedType} onSelect={setSelectedType} className="w-auto" />
+            <div className="flex gap-2 items-center">
+              <span className="text-sm font-medium text-muted-foreground">Pricing Layer:</span>
+              <Select value={selectedPricingLayer} onValueChange={setSelectedPricingLayer}>
+                <SelectTrigger className="w-[220px]">
+                  <SelectValue placeholder="Select pricing layer" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="All">All</SelectItem>
+                  <SelectItem value="20s">20s ($200k-$299k)</SelectItem>
+                  <SelectItem value="30s">30s ($300k-$399k)</SelectItem>
+                  <SelectItem value="40s">40s ($400k-$499k)</SelectItem>
+                  <SelectItem value="50s">50s ($500k-$599k)</SelectItem>
+                  <SelectItem value="60s">60s ($600k-$699k)</SelectItem>
+                  <SelectItem value="70s">70s ($700k-$799k)</SelectItem>
+                  <SelectItem value="80s">80s ($800k-$899k)</SelectItem>
+            
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           
           {loading ? (
