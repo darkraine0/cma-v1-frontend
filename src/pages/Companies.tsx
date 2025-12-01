@@ -5,7 +5,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import API_URL from '../config';
-import { getCompanyColor, sortCompanies, getCanonicalCompanyName, isSameCompany } from '../utils/colors';
+import { getCompanyColor, sortCompanies, getCanonicalCompanyName } from '../utils/colors';
 
 interface Plan {
   plan_name: string;
