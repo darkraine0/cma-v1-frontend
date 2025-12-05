@@ -216,16 +216,14 @@ const CommunityDetail: React.FC = () => {
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               {/* Left side - Community name */}
               <div className="flex-1">
-                <CardTitle>{decodedCommunityName}</CardTitle>
+                <CardTitle>{decodedCommunityName} ({companyParam})</CardTitle>
                 <p className="text-sm text-muted-foreground">Home plans and pricing information</p>
               </div>
             
-            {/* Center - Type tabs (hidden when company is specified in URL) */}
-            {!companyParam && (
-              <div className="flex justify-center flex-1">
-                <TypeTabs selected={selectedType} onSelect={setSelectedType} />
-              </div>
-            )}
+            {/* Center - Type tabs */}
+            <div className="flex justify-center flex-1">
+              <TypeTabs selected={selectedType} onSelect={setSelectedType} />
+            </div>
             
             {/* Right side - Action buttons */}
             <div className="flex justify-end flex-1">
